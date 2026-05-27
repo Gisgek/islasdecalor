@@ -1,0 +1,754 @@
+{
+  "Acapulco": {
+    "displayName": "Acapulco",
+    "state": "Guerrero",
+    "rasterPath": "./r/Acapulco.png",
+    "bounds": {
+      "xmin": -100.018603,
+      "xmax": -99.646431,
+      "ymin": 16.698693,
+      "ymax": 17.123416
+    },
+    "stats": {
+      "min": 30.44,
+      "max": 51.48
+    },
+    "type": "image/png"
+  },
+  "Aguascalientes": {
+    "displayName": "Aguascalientes",
+    "state": "Aguascalientes",
+    "rasterPath": "./r/Aguascalientes.png",
+    "bounds": {
+      "xmin": -102.385574,
+      "xmax": -102.18534,
+      "ymin": 21.771929,
+      "ymax": 22.04331
+    },
+    "stats": {
+      "min": 24.26,
+      "max": 55.27
+    },
+    "type": "image/png"
+  },
+  "Campeche": {
+    "displayName": "Campeche",
+    "state": "Campeche",
+    "rasterPath": "./r/Campeche.png",
+    "bounds": {
+      "xmin": -90.645312,
+      "xmax": -89.970498,
+      "ymin": 19.460204,
+      "ymax": 19.890048
+    },
+    "stats": {
+      "min": 29.49,
+      "max": 47.05
+    },
+    "type": "image/png"
+  },
+  "Canc_n": {
+    "displayName": "Canc n",
+    "state": "México",
+    "rasterPath": "./r/Canc_n.png",
+    "bounds": {
+      "xmin": -86.982342,
+      "xmax": -86.692905,
+      "ymin": 21.018152,
+      "ymax": 21.276598
+    },
+    "stats": {
+      "min": 27.18,
+      "max": 45.58
+    },
+    "type": "image/png"
+  },
+  "Celaya": {
+    "displayName": "Celaya",
+    "state": "Guanajuato",
+    "rasterPath": "./r/Celaya.png",
+    "bounds": {
+      "xmin": -100.88934,
+      "xmax": -100.748125,
+      "ymin": 20.463802,
+      "ymax": 20.597471
+    },
+    "stats": {
+      "min": 29.49,
+      "max": 50.71
+    },
+    "type": "image/png"
+  },
+  "Chetumal": {
+    "displayName": "Chetumal",
+    "state": "Quintana Roo",
+    "rasterPath": "./r/Chetumal.png",
+    "bounds": {
+      "xmin": -88.377785,
+      "xmax": -87.673595,
+      "ymin": 18.478166,
+      "ymax": 18.749816
+    },
+    "stats": {
+      "min": 33.37,
+      "max": 45.37
+    },
+    "type": "image/png"
+  },
+  "Chihuahua": {
+    "displayName": "Chihuahua",
+    "state": "Chihuahua",
+    "rasterPath": "./r/Chihuahua.png",
+    "bounds": {
+      "xmin": -106.191916,
+      "xmax": -105.917301,
+      "ymin": 28.54298,
+      "ymax": 28.810319
+    },
+    "stats": {
+      "min": 17.37,
+      "max": 47.28
+    },
+    "type": "image/png"
+  },
+  "Chilpancingo": {
+    "displayName": "Chilpancingo",
+    "state": "Guerrero",
+    "rasterPath": "./r/Chilpancingo.png",
+    "bounds": {
+      "xmin": -99.886821,
+      "xmax": -99.436226,
+      "ymin": 17.226363,
+      "ymax": 17.949417
+    },
+    "stats": {
+      "min": 33.14,
+      "max": 52.65
+    },
+    "type": "image/png"
+  },
+  "Ciudad_de_M_xico": {
+    "displayName": "Ciudad de M xico",
+    "state": "México",
+    "rasterPath": "./r/Ciudad_de_M_xico.png",
+    "bounds": {
+      "xmin": -99.445927,
+      "xmax": -98.714519,
+      "ymin": 19.151902,
+      "ymax": 19.93155
+    },
+    "stats": {
+      "min": 16.8,
+      "max": 54.94
+    },
+    "type": "image/png"
+  },
+  "Coatzacoalcos": {
+    "displayName": "Coatzacoalcos",
+    "state": "Veracruz",
+    "rasterPath": "./r/Coatzacoalcos.png",
+    "bounds": {
+      "xmin": -94.572926,
+      "xmax": -94.333076,
+      "ymin": 18.00116,
+      "ymax": 18.17714
+    },
+    "stats": {
+      "min": 29.76,
+      "max": 45.51
+    },
+    "type": "image/png"
+  },
+  "Colima_Villa_de__lvarez": {
+    "displayName": "Colima Villa de  lvarez",
+    "state": "México",
+    "rasterPath": "./r/Colima_Villa_de__lvarez.png",
+    "bounds": {
+      "xmin": -103.807428,
+      "xmax": -103.655433,
+      "ymin": 19.183703,
+      "ymax": 19.318989
+    },
+    "stats": {
+      "min": 38.81,
+      "max": 53.09
+    },
+    "type": "image/png"
+  },
+  "Cuernavaca": {
+    "displayName": "Cuernavaca",
+    "state": "Morelos",
+    "rasterPath": "./r/Cuernavaca.png",
+    "bounds": {
+      "xmin": -99.31118,
+      "xmax": -99.109868,
+      "ymin": 18.721789,
+      "ymax": 19.014729
+    },
+    "stats": {
+      "min": 28.72,
+      "max": 52.3
+    },
+    "type": "image/png"
+  },
+  "Culiac_n": {
+    "displayName": "Culiac n",
+    "state": "México",
+    "rasterPath": "./r/Culiac_n.png",
+    "bounds": {
+      "xmin": -107.529148,
+      "xmax": -107.315978,
+      "ymin": 24.695406,
+      "ymax": 24.89591
+    },
+    "stats": {
+      "min": 34.77,
+      "max": 52.93
+    },
+    "type": "image/png"
+  },
+  "Durango": {
+    "displayName": "Durango",
+    "state": "Durango",
+    "rasterPath": "./r/Durango.png",
+    "bounds": {
+      "xmin": -104.736645,
+      "xmax": -104.550963,
+      "ymin": 23.937048,
+      "ymax": 24.123538
+    },
+    "stats": {
+      "min": 29.58,
+      "max": 48.23
+    },
+    "type": "image/png"
+  },
+  "Guadalajara": {
+    "displayName": "Guadalajara",
+    "state": "Jalisco",
+    "rasterPath": "./r/Guadalajara.png",
+    "bounds": {
+      "xmin": -103.523919,
+      "xmax": -103.074402,
+      "ymin": 20.464341,
+      "ymax": 20.872086
+    },
+    "stats": {
+      "min": 22.73,
+      "max": 56.57
+    },
+    "type": "image/png"
+  },
+  "Guanajuato": {
+    "displayName": "Guanajuato",
+    "state": "Guanajuato",
+    "rasterPath": "./r/Guanajuato.png",
+    "bounds": {
+      "xmin": -101.318645,
+      "xmax": -101.22001,
+      "ymin": 20.918439,
+      "ymax": 21.06181
+    },
+    "stats": {
+      "min": 31.36,
+      "max": 49.63
+    },
+    "type": "image/png"
+  },
+  "Hermosillo": {
+    "displayName": "Hermosillo",
+    "state": "Sonora",
+    "rasterPath": "./r/Hermosillo.png",
+    "bounds": {
+      "xmin": -111.102916,
+      "xmax": -110.866838,
+      "ymin": 28.973093,
+      "ymax": 29.203242
+    },
+    "stats": {
+      "min": 24.94,
+      "max": 59.25
+    },
+    "type": "image/png"
+  },
+  "Ju_rez": {
+    "displayName": "Ju rez",
+    "state": "México",
+    "rasterPath": "./r/Ju_rez.png",
+    "bounds": {
+      "xmin": -106.604782,
+      "xmax": -106.281119,
+      "ymin": 31.510385,
+      "ymax": 31.796049
+    },
+    "stats": {
+      "min": 14.86,
+      "max": 42.31
+    },
+    "type": "image/png"
+  },
+  "La_Laguna": {
+    "displayName": "La Laguna",
+    "state": "Coahuila-Durango",
+    "rasterPath": "./r/La_Laguna.png",
+    "bounds": {
+      "xmin": -103.573237,
+      "xmax": -103.196484,
+      "ymin": 25.442984,
+      "ymax": 25.662352
+    },
+    "stats": {
+      "min": 22.48,
+      "max": 51.86
+    },
+    "type": "image/png"
+  },
+  "La_Paz": {
+    "displayName": "La Paz",
+    "state": "Baja California Sur",
+    "rasterPath": "./r/La_Paz.png",
+    "bounds": {
+      "xmin": -110.469064,
+      "xmax": -110.229484,
+      "ymin": 24.009542,
+      "ymax": 24.235918
+    },
+    "stats": {
+      "min": 30.2,
+      "max": 47.66
+    },
+    "type": "image/png"
+  },
+  "Le_n": {
+    "displayName": "Le n",
+    "state": "México",
+    "rasterPath": "./r/Le_n.png",
+    "bounds": {
+      "xmin": -101.791339,
+      "xmax": -101.524,
+      "ymin": 21.014379,
+      "ymax": 21.231592
+    },
+    "stats": {
+      "min": 26.69,
+      "max": 50.72
+    },
+    "type": "image/png"
+  },
+  "Los_Cabos": {
+    "displayName": "Los Cabos",
+    "state": "Baja California Sur",
+    "rasterPath": "./r/Los_Cabos.png",
+    "bounds": {
+      "xmin": -110.034909,
+      "xmax": -109.61288,
+      "ymin": 22.860687,
+      "ymax": 23.209413
+    },
+    "stats": {
+      "min": 26.71,
+      "max": 47.3
+    },
+    "type": "image/png"
+  },
+  "Los_Mochis": {
+    "displayName": "Los Mochis",
+    "state": "Sinaloa",
+    "rasterPath": "./r/Los_Mochis.png",
+    "bounds": {
+      "xmin": -109.059608,
+      "xmax": -108.924591,
+      "ymin": 25.711939,
+      "ymax": 25.852077
+    },
+    "stats": {
+      "min": 34.7,
+      "max": 47.57
+    },
+    "type": "image/png"
+  },
+  "Mazatl_n": {
+    "displayName": "Mazatl n",
+    "state": "México",
+    "rasterPath": "./r/Mazatl_n.png",
+    "bounds": {
+      "xmin": -106.506416,
+      "xmax": -106.331784,
+      "ymin": 23.161712,
+      "ymax": 23.328529
+    },
+    "stats": {
+      "min": 25.32,
+      "max": 47.04
+    },
+    "type": "image/png"
+  },
+  "Mexicali": {
+    "displayName": "Mexicali",
+    "state": "Baja California",
+    "rasterPath": "./r/Mexicali.png",
+    "bounds": {
+      "xmin": -115.615333,
+      "xmax": -114.788524,
+      "ymin": 30.962772,
+      "ymax": 32.683764
+    },
+    "stats": {
+      "min": 32.59,
+      "max": 53.78
+    },
+    "type": "image/png"
+  },
+  "Monterrey": {
+    "displayName": "Monterrey",
+    "state": "Nuevo León",
+    "rasterPath": "./r/Monterrey.png",
+    "bounds": {
+      "xmin": -100.540614,
+      "xmax": -99.908919,
+      "ymin": 25.331144,
+      "ymax": 25.941279
+    },
+    "stats": {
+      "min": 20.21,
+      "max": 49.47
+    },
+    "type": "image/png"
+  },
+  "Morelia": {
+    "displayName": "Morelia",
+    "state": "Michoacán",
+    "rasterPath": "./r/Morelia.png",
+    "bounds": {
+      "xmin": -101.387905,
+      "xmax": -101.059661,
+      "ymin": 19.607348,
+      "ymax": 19.802193
+    },
+    "stats": {
+      "min": 31.33,
+      "max": 52.27
+    },
+    "type": "image/png"
+  },
+  "M_rida": {
+    "displayName": "M rida",
+    "state": "México",
+    "rasterPath": "./r/M_rida.png",
+    "bounds": {
+      "xmin": -89.785625,
+      "xmax": -89.48406,
+      "ymin": 20.800131,
+      "ymax": 21.126759
+    },
+    "stats": {
+      "min": 31.31,
+      "max": 56.62
+    },
+    "type": "image/png"
+  },
+  "Oaxaca": {
+    "displayName": "Oaxaca",
+    "state": "Oaxaca",
+    "rasterPath": "./r/Oaxaca.png",
+    "bounds": {
+      "xmin": -96.859049,
+      "xmax": -96.5812,
+      "ymin": 16.893807,
+      "ymax": 17.281879
+    },
+    "stats": {
+      "min": 32.23,
+      "max": 51.17
+    },
+    "type": "image/png"
+  },
+  "Pachuca": {
+    "displayName": "Pachuca",
+    "state": "Hidalgo",
+    "rasterPath": "./r/Pachuca.png",
+    "bounds": {
+      "xmin": -98.873251,
+      "xmax": -98.665202,
+      "ymin": 19.982754,
+      "ymax": 20.181372
+    },
+    "stats": {
+      "min": 26.2,
+      "max": 45.93
+    },
+    "type": "image/png"
+  },
+  "Poza_Rica": {
+    "displayName": "Poza Rica",
+    "state": "Veracruz",
+    "rasterPath": "./r/Poza_Rica.png",
+    "bounds": {
+      "xmin": -97.505297,
+      "xmax": -97.384833,
+      "ymin": 20.456256,
+      "ymax": 20.589386
+    },
+    "stats": {
+      "min": 30.05,
+      "max": 41.15
+    },
+    "type": "image/png"
+  },
+  "Puebla_Tlaxcala": {
+    "displayName": "Puebla Tlaxcala",
+    "state": "Puebla-Tlaxcala",
+    "rasterPath": "./r/Puebla_Tlaxcala.png",
+    "bounds": {
+      "xmin": -98.406217,
+      "xmax": -98.005748,
+      "ymin": 18.876479,
+      "ymax": 19.310635
+    },
+    "stats": {
+      "min": 21.7,
+      "max": 53.34
+    },
+    "type": "image/png"
+  },
+  "Puerto_Vallarta": {
+    "displayName": "Puerto Vallarta",
+    "state": "Jalisco",
+    "rasterPath": "./r/Puerto_Vallarta.png",
+    "bounds": {
+      "xmin": -105.288301,
+      "xmax": -105.165141,
+      "ymin": 20.570252,
+      "ymax": 20.739225
+    },
+    "stats": {
+      "min": 28.9,
+      "max": 47.86
+    },
+    "type": "image/png"
+  },
+  "Quer_taro": {
+    "displayName": "Quer taro",
+    "state": "México",
+    "rasterPath": "./r/Quer_taro.png",
+    "bounds": {
+      "xmin": -100.533338,
+      "xmax": -100.275432,
+      "ymin": 20.486439,
+      "ymax": 20.787465
+    },
+    "stats": {
+      "min": 23.46,
+      "max": 49.4
+    },
+    "type": "image/png"
+  },
+  "Reynosa": {
+    "displayName": "Reynosa",
+    "state": "Tamaulipas",
+    "rasterPath": "./r/Reynosa.png",
+    "bounds": {
+      "xmin": -98.45284,
+      "xmax": -98.158013,
+      "ymin": 25.925649,
+      "ymax": 26.144478
+    },
+    "stats": {
+      "min": 24.83,
+      "max": 42.35
+    },
+    "type": "image/png"
+  },
+  "Saltillo": {
+    "displayName": "Saltillo",
+    "state": "Coahuila",
+    "rasterPath": "./r/Saltillo.png",
+    "bounds": {
+      "xmin": -101.079334,
+      "xmax": -100.792322,
+      "ymin": 25.317399,
+      "ymax": 25.618964
+    },
+    "stats": {
+      "min": 23.29,
+      "max": 53.12
+    },
+    "type": "image/png"
+  },
+  "San_Luis_Potos_": {
+    "displayName": "San Luis Potos ",
+    "state": "México",
+    "rasterPath": "./r/San_Luis_Potos_.png",
+    "bounds": {
+      "xmin": -101.074483,
+      "xmax": -100.765373,
+      "ymin": 21.986985,
+      "ymax": 22.247317
+    },
+    "stats": {
+      "min": 16.46,
+      "max": 50.74
+    },
+    "type": "image/png"
+  },
+  "Tampico": {
+    "displayName": "Tampico",
+    "state": "Tamaulipas",
+    "rasterPath": "./r/Tampico.png",
+    "bounds": {
+      "xmin": -97.98904,
+      "xmax": -97.762934,
+      "ymin": 22.157036,
+      "ymax": 22.447282
+    },
+    "stats": {
+      "min": 24.72,
+      "max": 54.78
+    },
+    "type": "image/png"
+  },
+  "Tapachula": {
+    "displayName": "Tapachula",
+    "state": "Chiapas",
+    "rasterPath": "./r/Tapachula.png",
+    "bounds": {
+      "xmin": -92.456585,
+      "xmax": -92.141007,
+      "ymin": 14.673441,
+      "ymax": 15.054237
+    },
+    "stats": {
+      "min": 31.51,
+      "max": 51.54
+    },
+    "type": "image/png"
+  },
+  "Tepic": {
+    "displayName": "Tepic",
+    "state": "Nayarit",
+    "rasterPath": "./r/Tepic.png",
+    "bounds": {
+      "xmin": -104.954936,
+      "xmax": -104.795664,
+      "ymin": 21.44045,
+      "ymax": 21.561453
+    },
+    "stats": {
+      "min": 34.75,
+      "max": 52.85
+    },
+    "type": "image/png"
+  },
+  "Tijuana": {
+    "displayName": "Tijuana",
+    "state": "Baja California",
+    "rasterPath": "./r/Tijuana.png",
+    "bounds": {
+      "xmin": -117.140942,
+      "xmax": -116.742359,
+      "ymin": 32.278714,
+      "ymax": 32.566534
+    },
+    "stats": {
+      "min": 13.24,
+      "max": 44.8
+    },
+    "type": "image/png"
+  },
+  "Toluca": {
+    "displayName": "Toluca",
+    "state": "Estado de México",
+    "rasterPath": "./r/Toluca.png",
+    "bounds": {
+      "xmin": -99.804894,
+      "xmax": -99.484735,
+      "ymin": 19.173192,
+      "ymax": 19.43056
+    },
+    "stats": {
+      "min": 15.3,
+      "max": 53.28
+    },
+    "type": "image/png"
+  },
+  "Tuxtla_Guti_rrez": {
+    "displayName": "Tuxtla Guti rrez",
+    "state": "México",
+    "rasterPath": "./r/Tuxtla_Guti_rrez.png",
+    "bounds": {
+      "xmin": -93.328939,
+      "xmax": -92.94464,
+      "ymin": 16.467467,
+      "ymax": 16.813498
+    },
+    "stats": {
+      "min": 31.47,
+      "max": 52.58
+    },
+    "type": "image/png"
+  },
+  "Veracruz": {
+    "displayName": "Veracruz",
+    "state": "Veracruz",
+    "rasterPath": "./r/Veracruz.png",
+    "bounds": {
+      "xmin": -96.294727,
+      "xmax": -96.081826,
+      "ymin": 19.042487,
+      "ymax": 19.250807
+    },
+    "stats": {
+      "min": 29.42,
+      "max": 48.53
+    },
+    "type": "image/png"
+  },
+  "Villahermosa": {
+    "displayName": "Villahermosa",
+    "state": "Tabasco",
+    "rasterPath": "./r/Villahermosa.png",
+    "bounds": {
+      "xmin": -93.09394,
+      "xmax": -92.850047,
+      "ymin": 17.91061,
+      "ymax": 18.090633
+    },
+    "stats": {
+      "min": 33.27,
+      "max": 48.71
+    },
+    "type": "image/png"
+  },
+  "Xalapa": {
+    "displayName": "Xalapa",
+    "state": "Veracruz",
+    "rasterPath": "./r/Xalapa.png",
+    "bounds": {
+      "xmin": -96.992449,
+      "xmax": -96.830482,
+      "ymin": 19.475026,
+      "ymax": 19.612199
+    },
+    "stats": {
+      "min": 26.28,
+      "max": 43.52
+    },
+    "type": "image/png"
+  },
+  "Zacatecas_Guadalupe": {
+    "displayName": "Zacatecas Guadalupe",
+    "state": "Zacatecas",
+    "rasterPath": "./r/Zacatecas_Guadalupe.png",
+    "bounds": {
+      "xmin": -102.664771,
+      "xmax": -102.454026,
+      "ymin": 22.685785,
+      "ymax": 22.802206
+    },
+    "stats": {
+      "min": 20.03,
+      "max": 45.53
+    },
+    "type": "image/png"
+  }
+}

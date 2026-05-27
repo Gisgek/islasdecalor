@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Islas de Calor Urbano – Zonas Metropolitanas</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+  <link  href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+
+  <style>
+    /* ─── TOKENS ─────────────────────────────────────────────────────────── */
+    :root {
+      --bg-deep:     #080c14;
+      --bg-panel:    rgba(8, 12, 22, 0.96);
+      --bg-card:     rgba(16, 22, 38, 0.85);
+      --border:      rgba(56, 78, 120, 0.55);
+      --border-hi:   rgba(96, 165, 250, 0.35);
+      --text-hi:     #e8edf5;
+      --text-mid:    #94a3b8;
+      --text-lo:     #4b5a72;
+      --accent-blue: #60a5fa;
+      --accent-red:  #ef4444;
+      --accent-gold: #fbbf24;
+      --accent-teal: #2dd4bf;
+      --panel-w:     284px;
+      --ctrl-h:      44px;
+      --footer-h:    42px;
+      --radius:      6px;
+      --font-mono:   'JetBrains Mono', monospace;
+      --font-ui:     'Space Grotesk', sans-serif;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    body {
+      font-family: var(--font-ui);
+      background: var(--bg-deep);
+      color: var(--text-hi);
+      display: grid;
+      grid-template-rows: var(--ctrl-h) 1fr var(--footer-h);
+      grid-template-columns: 1fr var(--panel-w);
+      grid-template-areas:
+        "topbar  topbar"
+        "map     sidebar"
+        "footer  footer";
+    }
+
+    #topbar {
+      grid-area: topbar;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      z-index: 20;
+      backdrop-filter: blur(8px);
+    }
+
+    .search-group {
+      display: flex;
+      flex: 1 1 50%;
+      min-width: 0;
+      gap: 6px;
+      align-items: center;
+    }
+
+    #metroSearch {
+      flex: 1 1 45%;
+      min-width: 0;
+      background: var(--bg-card);
+      color: var(--text-hi);
+      border: 1px solid var(--border);
+      padding: 0 8px;
+      height: 30px;
+      border-radius: var(--radius);
+      font-family: var(--font-ui);
+      font-size: 11px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    #metroSearch:focus { border-color: var(--accent-blue); }
+    #metroSearch::placeholder { color: var(--text-lo); font-size: 10px; }
+
+    #metroSelect {
+      flex: 1 1 55%;
+      min-width: 0;
+      background: var(--bg-card);
+      color: var(--text-hi);
+      border: 1px solid var(--border);
+      padding: 0 8px;
+      height: 30px;
+      border-radius: var(--radius);
+      font-family: var(--font-ui);
+      font-size: 11px;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2360a5fa'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 24px;
+    }
+    #metroSelect:focus { outline: none; border-color: var(--accent-blue); }
+
+    .btn-group {
+      display: flex;
+      gap: 2px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2px;
+      flex-shrink: 0;
+    }
+    .btn {
+      background: transparent;
+      border: none;
+      color: var(--text-mid);
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 10px;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      transition: background .15s, color .15s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn:hover, .btn.active { background: rgba(96,165,250,.18); color: var(--text-hi); }
+    .btn.active { color: var(--accent-blue); }
+    .btn-locate { color: var(--accent-teal); }
+    .btn-locate:hover { background: rgba(45,212,191,.15); color: var(--accent-teal); }
+
+    #map { grid-area: map; position: relative; z-index: 1; }
+
+    #sidebar {
+      grid-area: sidebar;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+      z-index: 10;
+    }
+    #sidebar::-webkit-scrollbar { width: 4px; }
+    #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .sidebar-section {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-section:last-child { border-bottom: none; }
+
+    .sec-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+      margin-bottom: 7px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .sec-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .temp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .temp-cell {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 7px 8px;
+    }
+    .temp-cell .tc-label { font-size: 9.5px; color: var(--text-mid); margin-bottom: 3px; }
+    .temp-cell .tc-val {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1;
+    }
+    .tc-min .tc-val { color: var(--accent-blue); }
+    .tc-max .tc-val { color: var(--accent-red); }
+
+    .temp-diff-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 5px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-mid);
+    }
+    .temp-diff-bar strong { color: var(--accent-gold); font-family: var(--font-mono); font-size: 14px; }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 9.5px;
+      color: var(--text-mid);
+    }
+    .legend-gradient {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(to right, #0d47a1, #1565c0, #1976d2, #42a5f5, #80deea, #ffee58, #ffa726, #e53935, #b71c1c);
+    }
+    .legend-ends {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-lo);
+      margin-top: 3px;
+    }
+
+    /* ── Opacity Slider ───────────────────────────────────────────────── */
+    .opacity-control {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 9.5px;
+      color: var(--text-mid);
+    }
+    .opacity-control input[type=range] {
+      flex: 1;
+      height: 4px;
+      -webkit-appearance: none;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+    }
+    .opacity-control input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      border: 1px solid var(--text-hi);
+      cursor: pointer;
+    }
+    .opacity-control .op-val {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--accent-blue);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .vis-legend {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 10px;
+      color: var(--text-mid);
+      line-height: 1.4;
+    }
+    .vis-legend span {
+      color: #ffffff;   /* Texto blanco para mayor contraste */
+    }
+    .uhi-swatch {
+      flex-shrink: 0;
+      width: 12px;
+      height: 12px;
+      background: #e53935;
+      border-radius: 2px;
+      border: 1px solid rgba(229,57,53,.5);
+      margin-top: 1px;
+    }
+
+    .cta-block {
+      background: linear-gradient(135deg, rgba(16,22,38,.95) 0%, rgba(20,30,55,.95) 100%);
+      border: 1.5px solid var(--accent-gold);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      box-shadow: 0 0 0 1px rgba(251,191,36,.1);
+    }
+    .cta-block .cta-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .cta-block p {
+      font-size: 10.5px;
+      color: var(--text-mid);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+    .cta-block .cta-desc {
+      color: #ffffff;   /* Texto del párrafo descriptivo en blanco */
+    }
+    .cta-email {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(96,165,250,.18);
+      border: 1px solid rgba(96,165,250,.4);
+      color: var(--accent-blue);
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: background .2s, transform .2s;
+      word-break: break-all;
+    }
+    .cta-email:hover { background: rgba(96,165,250,.28); transform: translateY(-1px); }
+
+    .disclaimer {
+      font-size: 9px;
+      color: var(--text-lo);
+      line-height: 1.5;
+      border-left: 2px solid var(--border);
+      padding-left: 7px;
+    }
+    .disclaimer strong { color: var(--text-mid); }
+
+    /* Metodología */
+    .methodology {
+      font-size: 9.5px;
+      color: var(--text-mid);
+      line-height: 1.5;
+    }
+
+    #scale-overlay {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      z-index: 15;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 6px 9px;
+      min-width: 160px;
+      backdrop-filter: blur(6px);
+      pointer-events: none;
+    }
+    #scale-overlay .so-label {
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+      margin-bottom: 4px;
+    }
+    #scale-overlay .so-gradient {
+      height: 7px;
+      border-radius: 3px;
+      background: linear-gradient(to right, #0d47a1, #1976d2, #42a5f5, #ffee58, #ffa726, #e53935, #b71c1c);
+      margin-bottom: 3px;
+    }
+    #scale-overlay .so-ends {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--text-mid);
+    }
+
+    #footer {
+      grid-area: footer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      background: rgba(4, 6, 12, 0.98);
+      border-top: 1px solid var(--border);
+      z-index: 20;
+    }
+    .footer-credit {
+      font-size: 9px;
+      color: var(--text-lo);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .footer-credit span { color: var(--text-mid); }
+    
+    .social-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .social-links .follow-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--accent-gold);
+      margin-right: 8px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      text-shadow: 0 0 12px rgba(251,191,36,.5);
+      align-self: center;
+    }
+    .social-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 5px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-hi);
+      transition: all .25s ease;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,.3);
+    }
+    .social-icon svg { width: 13px; height: 13px; fill: var(--text-mid); transition: fill .2s, transform .2s; }
+    .social-icon:hover { transform: translateY(-2px) scale(1.08); box-shadow: 0 4px 12px rgba(0,0,0,.5); border-color: var(--accent-blue); }
+    .social-icon.yt:hover  { background: #ff0000; border-color: #ff0000; }
+    .social-icon.yt:hover svg { fill: #fff; transform: scale(1.1); }
+    .social-icon.tt:hover  { background: #000; border-color: #00f2ea; }
+    .social-icon.tt:hover svg { fill: #00f2ea; transform: scale(1.1); }
+    .social-icon.ig:hover  { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); border-color: transparent; }
+    .social-icon.ig:hover svg { fill: #fff; transform: scale(1.1); }
+    .social-icon.fb:hover  { background: #1877f2; border-color: #1877f2; }
+    .social-icon.fb:hover svg { fill: #fff; transform: scale(1.1); }
+
+    #welcomeOverlay {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(8,12,22,.97);
+      border: 1px solid var(--border-hi);
+      border-radius: 10px;
+      padding: 18px 22px;
+      z-index: 30;
+      max-width: 340px;
+      width: calc(100vw - 40px);
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,.7), 0 0 0 1px rgba(96,165,250,.08);
+      animation: wFadeIn .3s ease;
+    }
+    @keyframes wFadeIn {
+      from { opacity: 0; transform: translate(-50%, -58%); }
+      to   { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    #welcomeOverlay .w-icon { font-size: 26px; margin-bottom: 8px; }
+    #welcomeOverlay h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-bottom: 7px;
+      line-height: 1.3;
+    }
+    #welcomeOverlay p { font-size: 10px; color: var(--text-mid); line-height: 1.55; margin-bottom: 12px; }
+    #welcomeOverlay .highlight { color: var(--accent-red); font-weight: 600; }
+    .welcome-btn {
+      background: rgba(96,165,250,.15);
+      border: 1px solid var(--accent-blue);
+      color: var(--accent-blue);
+      padding: 7px 20px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 600;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      transition: background .2s;
+      letter-spacing: .05em;
+    }
+    .welcome-btn:hover { background: rgba(96,165,250,.28); }
+
+    #loader {
+      display: none;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(8,12,22,.9);
+      border: 1px solid var(--border);
+      color: var(--text-hi);
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      z-index: 25;
+      font-size: 11px;
+      backdrop-filter: blur(6px);
+    }
+
+    .maplibregl-ctrl-bottom-right { bottom: 52px !important; right: 8px !important; }
+    .maplibregl-ctrl-group {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+    }
+    .maplibregl-ctrl-group button { width: 26px !important; height: 26px !important; }
+    .maplibregl-popup-content {
+      background: rgba(8,12,22,.97) !important;
+      border: 1px solid var(--border-hi) !important;
+      border-radius: 7px !important;
+      padding: 9px 12px !important;
+      box-shadow: 0 6px 20px rgba(0,0,0,.6) !important;
+      font-family: var(--font-ui) !important;
+    }
+    .maplibregl-popup-tip { border-top-color: rgba(8,12,22,.97) !important; }
+    .popup-title { font-size: 10px; font-weight: 600; color: var(--text-mid); margin-bottom: 4px; }
+    .popup-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .popup-intensa .popup-badge  { background: #8C1B0A; color: #fff; }
+    .popup-extrema .popup-badge  { background: #4F0B02; color: #fff; }
+
+    /* ─── MOBILE LAYOUT (≤ 600 px) ──────────────────────────────────────── */
+    @media (max-width: 600px) {
+      :root { --panel-w: 0px; }
+      body {
+        grid-template-columns: 1fr;
+        grid-template-rows: var(--ctrl-h) 1fr auto var(--footer-h);
+        grid-template-areas:
+          "topbar"
+          "map"
+          "sidebar"
+          "footer";
+      }
+      #sidebar {
+        border-left: none;
+        border-top: 1px solid var(--border);
+        max-height: 46vh;
+        overflow-y: auto;
+      }
+      .sec-label { font-size: 8.5px; }
+      .temp-cell .tc-label { font-size: 8px; }
+      .temp-cell .tc-val { font-size: 17px; }
+      .temp-diff-bar { font-size: 8.5px; }
+      .temp-diff-bar strong { font-size: 12px; }
+      .legend-row { font-size: 8px; }
+      .legend-ends { font-size: 8px; }
+      .vis-legend { font-size: 8.5px; }
+      .cta-block .cta-title { font-size: 10.5px; }
+      .cta-block p { font-size: 9.5px; }
+      .cta-email { font-size: 9.5px; }
+      .disclaimer { font-size: 8px; }
+      .social-links .follow-label { font-size: 11px; }
+      .opacity-control { font-size: 8.5px; }
+      .methodology { font-size: 8.5px; }
+
+      #topbar {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 5px 8px;
+        gap: 5px;
+      }
+      .search-group { flex: 1 1 100%; }
+      #metroSearch { font-size: 10px; height: 28px; }
+      #metroSelect { flex: 1 1 100%; height: 28px; }
+      .btn-group { flex: 1; justify-content: center; }
+      .btn { font-size: 9px; padding: 3px 6px; }
+      #scale-overlay {
+        bottom: 6px;
+        left: 6px;
+        min-width: 130px;
+        font-size: 7.5px;
+      }
+      .maplibregl-ctrl-bottom-right { bottom: 48px !important; }
+      .social-icon { width: 28px; height: 28px; }
+      .social-icon svg { width: 12px; height: 12px; }
+    }
+
+    @media (max-width: 360px) {
+      .btn { font-size: 8.5px; padding: 2px 5px; }
+      .footer-credit { font-size: 8px; }
+      .social-icon { width: 26px; height: 26px; }
+      .social-icon svg { width: 11px; height: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="topbar">
+    <div class="search-group">
+      <input type="text" id="metroSearch" placeholder="Buscar zona metropolitana..." autocomplete="off" />
+      <select id="metroSelect"><option>Cargando zonas...</option></select>
+    </div>
+    <div class="btn-group">
+      <button class="btn active" data-basemap="sat"   onclick="setBasemap('sat',this)">Satélite</button>
+      <button class="btn"        data-basemap="dark"  onclick="setBasemap('dark',this)">Oscuro</button>
+      <button class="btn"        data-basemap="light" onclick="setBasemap('light',this)">Claro</button>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-locate" id="btnLocate" onclick="locateUser()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5-8 12-8 12S4 15 4 10a8 8 0 0 1 8-8z"/></svg>
+        Ubicación
+      </button>
+      <button class="btn" id="btn3d" onclick="toggle3D()">2D/3D</button>
+    </div>
+  </div>
+
+  <div id="map">
+    <div id="scale-overlay">
+      <div class="so-label">Escala térmica</div>
+      <div class="so-gradient"></div>
+      <div class="so-ends">
+        <span id="lblMin">--</span>
+        <span id="lblMax">--</span>
+      </div>
+    </div>
+
+    <div id="welcomeOverlay">
+      <div class="w-icon"></div>
+      <h3>Visor de Islas de Calor Urbano</h3>
+      <p>Selecciona la zona metropolitana que deseas consultar en el menú superior.<br><br>
+      <span class="highlight">Las zonas en rojo intenso indican Islas de Calor Urbano en polígonos mayores a 6 hectáreas.</span></p>
+      <button class="welcome-btn" onclick="closeWelcome()">Comenzar exploración</button>
+    </div>
+
+    <div id="loader">Cargando zona...</div>
+  </div>
+
+  <aside id="sidebar">
+    <div class="sidebar-section">
+      <div class="sec-label">Gradiente Térmico</div>
+      <p style="font-size:9px;color:var(--text-lo);line-height:1.4;margin-bottom:8px;">
+        Brecha entre temperatura superficial mínima y máxima en la zona metropolitana seleccionada.
+      </p>
+      <div class="temp-grid">
+        <div class="temp-cell tc-min">
+          <div class="tc-label">Mínima</div>
+          <div class="tc-val" id="valMin">--</div>
+        </div>
+        <div class="temp-cell tc-max">
+          <div class="tc-label">Máxima</div>
+          <div class="tc-val" id="valMax">--</div>
+        </div>
+      </div>
+      <div class="temp-diff-bar">
+        <span style="color:var(--text-mid);">Brecha térmica</span>
+        <strong id="valDiff">-- °C</strong>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sec-label">Escala de Color</div>
+      <div class="legend-row">
+        <span style="color:var(--accent-blue);">Frío</span>
+        <div class="legend-gradient"></div>
+        <span style="color:var(--accent-red);">Caliente</span>
+      </div>
+      <div class="legend-ends">
+        <span id="sibLblMin">--</span>
+        <span id="sibLblMax">--</span>
+      </div>
+      <div class="opacity-control">
+        <span>Opacidad</span>
+        <input type="range" id="opacitySlider" min="0" max="100" value="78" step="1" />
+        <span class="op-val" id="opacityValue">78%</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sec-label">Leyenda Visual</div>
+      <div class="vis-legend">
+        <div class="uhi-swatch"></div>
+        <span>Zonas en <strong style="color:#ef4444;">rojo intenso</strong> indican la presencia de Islas de Calor Urbano en polígonos mayores a 6 hectáreas. Toca cualquier polígono para ver su intensidad.</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sec-label">Consultoría</div>
+      <div class="cta-block">
+        <div class="cta-title">¿Necesitas analizar fenómenos urbanos con rigor científico?</div>
+        <p class="cta-desc">Desarrollo geovisualizadores personalizados para el análisis espacial de tu territorio: islas de calor, patrones urbanos y más herramientas para la toma de decisiones.</p>
+        <a href="mailto:cursosalfonsoarteaga@gmail.com" class="cta-email">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          cursosalfonsoarteaga@gmail.com
+        </a>
+      </div>
+    </div>
+
+    <!-- ── NUEVA SECCIÓN: Metodología ──────────────────────────────────── -->
+    <div class="sidebar-section">
+      <div class="sec-label">Metodología</div>
+      <p class="methodology">
+        Análisis realizado a partir de imágenes satelitales Landsat 8 y 9, procesadas para los meses de marzo a agosto entre 2016 y 2026. 
+        Se estimó la temperatura superficial promedio mediante algoritmos de corrección atmosférica y se delimitaron las islas de calor urbano en polígonos mayores a 6 hectáreas.
+      </p>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sec-label">Nota Técnica</div>
+      <p class="disclaimer">
+        <strong>Temperatura superficial ≠ temperatura del aire.</strong> Este análisis es un acercamiento técnico especializado. Para estudios académicos exhaustivos, complementa con literatura científica en bases de datos como <strong>REDALYC</strong>.
+      </p>
+    </div>
+  </aside>
+
+  <footer id="footer">
+    <div class="footer-credit">Elaborado por: <span>Geógrafo Alfonso Arteaga</span></div>
+    <div class="social-links">
+      <span class="follow-label">Sígueme</span>
+      <a class="social-icon yt" href="https://youtube.com/@SIGArteaga"      target="_blank" title="YouTube">
+        <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      </a>
+      <a class="social-icon tt" href="https://tiktok.com/@alfonso_arteaga"  target="_blank" title="TikTok">
+        <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+      </a>
+      <a class="social-icon ig" href="https://instagram.com/gis_geek"       target="_blank" title="Instagram">
+        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      </a>
+      <a class="social-icon fb" href="https://facebook.com/GeoGeekAlfonso"  target="_blank" title="Facebook">
+        <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    let map, currentZoneKey = null, is3D = false, currentGeoJSON = null;
+    const geojsonFolder = './geojson';
+    let allZonesData = {};
+
+    const NAMES = {
+      "Aguascalientes":"Aguascalientes","Canc_n":"Cancún","Celaya":"Celaya",
+      "Chetumal":"Chetumal","Chihuahua":"Chihuahua","Chilpancingo":"Chilpancingo",
+      "Ciudad_de_M_xico":"Ciudad de México","Coatzacoalcos":"Coatzacoalcos",
+      "Colima_Villa_de__lvarez":"Colima / Villa de Álvarez","Cuernavaca":"Cuernavaca",
+      "Culiac_n":"Culiacán","Durango":"Durango","Guadalajara":"Guadalajara",
+      "Guanajuato":"Guanajuato","Hermosillo":"Hermosillo","Ju_rez":"Ciudad Juárez",
+      "La_Laguna":"La Laguna","La_Paz":"La Paz","Le_n":"León","Los_Cabos":"Los Cabos",
+      "Los_Mochis":"Los Mochis","M_rida":"Mérida","Mazatl_n":"Mazatlán",
+      "Mexicali":"Mexicali","Monterrey":"Monterrey","Morelia":"Morelia","Oaxaca":"Oaxaca",
+      "Pachuca":"Pachuca","Poza_Rica":"Poza Rica","Puebla_Tlaxcala":"Puebla / Tlaxcala",
+      "Puerto_Vallarta":"Puerto Vallarta","Quer_taro":"Querétaro","Reynosa":"Reynosa",
+      "Saltillo":"Saltillo","San_Luis_Potos_":"San Luis Potosí","Tampico":"Tampico",
+      "Tapachula":"Tapachula","Tepic":"Tepic","Tijuana":"Tijuana","Toluca":"Toluca",
+      "Tuxtla_Guti_rrez":"Tuxtla Gutiérrez","Veracruz":"Veracruz",
+      "Villahermosa":"Villahermosa","Xalapa":"Xalapa",
+      "Zacatecas_Guadalupe":"Zacatecas / Guadalupe"
+    };
+
+    const BASEMAPS = {
+      sat:   { tiles: ['https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'],               tileSize: 256 },
+      dark:  { tiles: ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'],       tileSize: 256 },
+      light: { tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'],      tileSize: 256 }
+    };
+
+    const $ = id => document.getElementById(id);
+    function corregirNombre(k) { return NAMES[k] || k.replace(/_/g, ' '); }
+    function closeWelcome()    { $('welcomeOverlay').style.display = 'none'; }
+
+    function initMap() {
+      map = new maplibregl.Map({
+        container: 'map',
+        style: { version: 8, sources: {}, layers: [], glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf' },
+        center: [-99.13, 19.43],
+        zoom: 4.5,
+        attributionControl: false
+      });
+
+      map.on('load', () => {
+        map.addSource('basemap-source', { type: 'raster', ...BASEMAPS.sat });
+        map.addLayer({ id: 'basemap-layer', type: 'raster', source: 'basemap-source' });
+        map.addSource('terrain-dem', {
+          type: 'raster-dem',
+          url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+          tileSize: 256
+        });
+        loadMetadata();
+      });
+
+      map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
+      map.on('click', handleMapClick);
+
+      $('metroSearch').addEventListener('input', filterZones);
+
+      const opacitySlider = $('opacitySlider');
+      const opacityValue  = $('opacityValue');
+      opacitySlider.addEventListener('input', () => {
+        const val = parseInt(opacitySlider.value, 10);
+        opacityValue.textContent = val + '%';
+        if (map.getLayer('heat-image-layer')) {
+          map.setPaintProperty('heat-image-layer', 'raster-opacity', val / 100);
+        }
+      });
+    }
+
+    async function loadMetadata() {
+      try {
+        const res = await fetch('./metadata_web.json');
+        if (!res.ok) throw new Error('metadata_web.json no encontrado');
+        const data = await res.json();
+        allZonesData = data;
+        populateSelect(data);
+      } catch (e) {
+        alert('Error al cargar metadatos. Asegúrate de usar un servidor local.\n  python -m http.server 8000');
+        console.error(e);
+      }
+    }
+
+    function populateSelect(data) {
+      const sel = $('metroSelect');
+      sel.innerHTML = '<option value="">— Selecciona una Zona —</option>';
+      Object.keys(data).sort((a,b) => corregirNombre(a).localeCompare(corregirNombre(b), 'es'))
+        .forEach(k => {
+          const opt = document.createElement('option');
+          opt.value = k;
+          opt.text  = `${corregirNombre(k)}, ${data[k].state}`;
+          sel.appendChild(opt);
+        });
+      sel.onchange = e => {
+        const val = e.target.value;
+        if (val && allZonesData[val]) {
+          $('metroSearch').value = corregirNombre(val);
+          loadZone(val, allZonesData[val]);
+        }
+      };
+    }
+
+    function filterZones() {
+      const query = $('metroSearch').value.toLowerCase().trim();
+      const sel = $('metroSelect');
+      const options = sel.options;
+      for (let i = 1; i < options.length; i++) {
+        const text = options[i].text.toLowerCase();
+        options[i].style.display = text.includes(query) ? '' : 'none';
+      }
+      if (query === '') sel.value = '';
+    }
+
+    function clearLayers() {
+      ['heat-image-layer','uhi-fill','uhi-outline','uhi-labels','user-location-marker']
+        .forEach(id => { if (map.getLayer(id)) map.removeLayer(id); });
+      ['heat-image-source','uhi-geojson-source','user-location']
+        .forEach(id => { if (map.getSource(id)) map.removeSource(id); });
+      currentGeoJSON = null;
+    }
+
+    function loadZone(key, zoneData) {
+      closeWelcome();
+      $('loader').style.display = 'block';
+      currentZoneKey = key;
+      clearLayers();
+
+      const { min: tMin, max: tMax } = zoneData.stats;
+      const tDiff = (tMax - tMin).toFixed(1);
+
+      $('valMin').textContent    = tMin.toFixed(1) + ' °C';
+      $('valMax').textContent    = tMax.toFixed(1) + ' °C';
+      $('valDiff').textContent   = tDiff + ' °C';
+      $('lblMin').textContent    = tMin.toFixed(0) + ' °C';
+      $('lblMax').textContent    = tMax.toFixed(0) + ' °C';
+      $('sibLblMin').textContent = tMin.toFixed(0) + ' °C';
+      $('sibLblMax').textContent = tMax.toFixed(0) + ' °C';
+
+      const b = zoneData.bounds;
+      map.addSource('heat-image-source', {
+        type: 'image', url: zoneData.rasterPath,
+        coordinates: [[b.xmin,b.ymax],[b.xmax,b.ymax],[b.xmax,b.ymin],[b.xmin,b.ymin]]
+      });
+
+      const currentOpacity = parseInt($('opacitySlider').value, 10) / 100;
+      map.addLayer({
+        id: 'heat-image-layer',
+        type: 'raster',
+        source: 'heat-image-source',
+        paint: { 'raster-opacity': currentOpacity }
+      });
+
+      map.fitBounds([[b.xmin,b.ymin],[b.xmax,b.ymax]], { padding: 10, maxZoom: 14, duration: 1000 });
+
+      fetch(`${geojsonFolder}/UHI_${key}.geojson`)
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => {
+          currentGeoJSON = data;
+          map.addSource('uhi-geojson-source', { type: 'geojson', data });
+
+          map.addLayer({
+            id: 'uhi-fill',
+            type: 'fill',
+            source: 'uhi-geojson-source',
+            paint: {
+              'fill-color': ['match', ['get', 'INTENSIDAD'],
+                'Extrema', '#4F0B02',
+                'Intensa', '#8C1B0A',
+                '#e53935'
+              ],
+              'fill-opacity': 0.55
+            }
+          });
+
+          map.addLayer({
+            id: 'uhi-outline',
+            type: 'line',
+            source: 'uhi-geojson-source',
+            paint: {
+              'line-color': ['match', ['get', 'INTENSIDAD'],
+                'Extrema', '#6B1005',
+                'Intensa', '#A8230E',
+                '#ff5252'
+              ],
+              'line-width': 1.6
+            }
+          });
+
+          map.addLayer({
+            id: 'uhi-labels',
+            type: 'symbol',
+            source: 'uhi-geojson-source',
+            minzoom: 14,
+            layout: {
+              'text-field': ['get', 'INTENSIDAD'],
+              'text-font': ['Noto Sans Regular'],
+              'text-size': 11,
+              'text-anchor': 'center'
+            },
+            paint: {
+              'text-color': '#fff',
+              'text-halo-color': '#000',
+              'text-halo-width': 2
+            }
+          });
+        })
+        .catch(() => console.info('GeoJSON de UHI no disponible para esta zona.'));
+
+      $('loader').style.display = 'none';
+    }
+
+    function handleMapClick(e) {
+      if (!currentZoneKey || !map.getLayer('uhi-fill')) return;
+      const features = map.queryRenderedFeatures(e.point, { layers: ['uhi-fill'] });
+      if (!features.length) return;
+      const intensidad = features[0].properties.INTENSIDAD || 'N/A';
+      const cls = intensidad.toLowerCase() === 'extrema' ? 'popup-extrema' : 'popup-intensa';
+      new maplibregl.Popup({ maxWidth: '220px' })
+        .setLngLat(e.lngLat)
+        .setHTML(`<div class="popup-title">Isla de Calor Urbano</div>
+                  <div class="${cls}"><span class="popup-badge">Nivel: ${intensidad}</span></div>`)
+        .addTo(map);
+    }
+
+    function locateUser() {
+      const btn = $('btnLocate');
+      if (!navigator.geolocation) { alert('Geolocalización no soportada.'); return; }
+      btn.style.opacity = '0.5';
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const [lng, lat] = [pos.coords.longitude, pos.coords.latitude];
+          if (!map.getSource('user-location')) {
+            map.addSource('user-location', { type: 'geojson', data: { type: 'Point', coordinates: [lng, lat] } });
+            map.addLayer({ id: 'user-location-marker', type: 'circle', source: 'user-location',
+              paint: { 'circle-radius': 9, 'circle-color': '#2dd4bf',
+                       'circle-stroke-width': 2, 'circle-stroke-color': '#fff' } });
+          } else {
+            map.getSource('user-location').setData({ type: 'Point', coordinates: [lng, lat] });
+          }
+          map.flyTo({ center: [lng, lat], zoom: 15, duration: 1500 });
+          setTimeout(() => {
+            if (currentGeoJSON) {
+              const fc = turf.featureCollection(currentGeoJSON.features);
+              const within = turf.pointWithinPolygon(turf.point([lng, lat]), fc);
+              if (within.features.length) {
+                const intens = within.features[0].properties.INTENSIDAD;
+                const cls = intens.toLowerCase() === 'extrema' ? 'popup-extrema' : 'popup-intensa';
+                new maplibregl.Popup({ offset: [0,-12] })
+                  .setLngLat([lng, lat])
+                  .setHTML(`<div class="popup-title">Tu ubicación está en una ICU</div>
+                            <div class="${cls}"><span class="popup-badge">Nivel: ${intens}</span></div>`)
+                  .addTo(map);
+              }
+            }
+          }, 1700);
+          btn.style.opacity = '1';
+        },
+        err => { alert('No se pudo obtener ubicación. Verifica permisos.'); btn.style.opacity = '1'; console.error(err); },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
+    function setBasemap(type, clickedBtn) {
+      if (!BASEMAPS[type]) return;
+      const beforeId = map.getLayer('heat-image-layer') ? 'heat-image-layer' : undefined;
+      if (map.getLayer('basemap-layer')) map.removeLayer('basemap-layer');
+      if (map.getSource('basemap-source')) map.removeSource('basemap-source');
+      map.addSource('basemap-source', { type: 'raster', ...BASEMAPS[type] });
+      map.addLayer({ id: 'basemap-layer', type: 'raster', source: 'basemap-source' }, beforeId);
+      document.querySelectorAll('.btn[data-basemap]').forEach(b => b.classList.remove('active'));
+      if (clickedBtn) clickedBtn.classList.add('active');
+    }
+
+    function toggle3D() {
+      is3D = !is3D;
+      $('btn3d').textContent = is3D ? '2D' : '3D';
+      if (is3D) { map.setTerrain({ source: 'terrain-dem', exaggeration: 1.5 }); map.easeTo({ pitch: 50, duration: 600 }); }
+      else       { map.setTerrain(null); map.easeTo({ pitch: 0, duration: 600 }); }
+    }
+
+    window.onload = initMap;
+  </script>
+</body>
+</html>
